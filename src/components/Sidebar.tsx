@@ -65,14 +65,16 @@ export const Sidebar = () => {
 
 export const Header = () => {
   const { user } = useAuth();
+  const firstName = user?.user_metadata.name?.split(" ")[0];
 
   return (
     <header className="flex items-center justify-between h-16 px-4 border-b border-border bg-card sm:px-6 lg:px-8">
-      <div></div>
-      <div className="flex items-center">
-        <span className="mr-4 text-sm font-medium text-foreground">
-          {user?.email}
+      <div>
+        <span className="text-lg font-bold text-foreground">
+          Welcome, {firstName}
         </span>
+      </div>
+      <div className="flex items-center">
         <Avatar className="h-9 w-9">
           <AvatarImage src="/placeholder.svg" alt="Avatar" />
           <AvatarFallback>
