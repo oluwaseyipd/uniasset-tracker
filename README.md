@@ -1,73 +1,133 @@
-# Welcome to your Lovable project
+# UniAsset Tracker
 
-## Project info
+A comprehensive university asset management system built with modern web technologies. Track, manage, and maintain university assets across departments with real-time monitoring and reporting capabilities.
 
-**URL**: https://lovable.dev/projects/aab18b65-af1b-4d19-af6c-91c3b361ad47
+## Features
 
-## How can I edit this code?
+- **Asset Management**: Create, update, and track university assets with detailed information
+- **Department Organization**: Organize assets by departments and locations
+- **Maintenance Tracking**: Schedule and monitor asset maintenance activities
+- **Reporting & Analytics**: Generate comprehensive reports and visualizations
+- **User Authentication**: Secure access with Supabase authentication
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
 
-There are several ways of editing your application.
+## Technology Stack
 
-**Use Lovable**
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS
+- **Backend**: Supabase (PostgreSQL database + Authentication)
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM
+- **Charts**: Recharts
+- **Form Handling**: React Hook Form with Zod validation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/aab18b65-af1b-4d19-af6c-91c3b361ad47) and start prompting.
+## Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (v16 or higher)
+- npm or yarn package manager
+- Supabase account and project
 
-**Use your preferred IDE**
+## Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd uniasset-tracker
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Environment Setup**
+   
+   Create a `.env.local` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Verify Environment**
+   ```bash
+   npm run verify-env
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+   The application will be available at `http://localhost:5173`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development environment
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run verify-env` - Verify environment variables
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   └── ui/             # shadcn/ui components
+├── hooks/              # Custom React hooks
+├── integrations/       # External service integrations
+├── lib/                # Utility functions and configurations
+├── pages/              # Application pages/routes
+├── App.tsx             # Main application component
+└── main.tsx           # Application entry point
 ```
 
-**Edit a file directly in GitHub**
+## Database Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The application uses Supabase as the backend. Make sure to:
 
-**Use GitHub Codespaces**
+1. Create a new Supabase project
+2. Set up the required database tables (refer to `supabase/` directory for migrations)
+3. Configure Row Level Security (RLS) policies
+4. Add your Supabase URL and anon key to environment variables
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Authentication
 
-## What technologies are used for this project?
+The application includes:
+- User registration and login
+- Protected routes
+- Session management
+- Role-based access control
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Vercel (Recommended)
 
-## How can I deploy this project?
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run: `vercel`
+3. Follow the prompts to deploy
 
-Simply open [Lovable](https://lovable.dev/projects/aab18b65-af1b-4d19-af6c-91c3b361ad47) and click on Share -> Publish.
+### Manual Deployment
 
-## Can I connect a custom domain to my Lovable project?
+1. Build the application: `npm run build`
+2. Deploy the `dist/` folder to your hosting provider
+3. Configure environment variables on your hosting platform
 
-Yes, you can!
+## Contributing
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/new-feature`
+3. Make your changes and commit: `git commit -m 'Add new feature'`
+4. Push to the branch: `git push origin feature/new-feature`
+5. Submit a pull request
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support or questions, please open an issue in the repository or contact the development team.
