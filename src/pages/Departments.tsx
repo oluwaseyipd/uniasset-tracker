@@ -4,10 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 interface Department {
   id: string;
@@ -20,6 +34,9 @@ export default function Departments() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deptToDelete, setDeptToDelete] = useState<Department | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [formData, setFormData] = useState({ name: "", description: "" });
   const { toast } = useToast();
 
@@ -58,12 +75,18 @@ export default function Departments() {
           .eq("id", editingDept.id);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Department updated successfully" });
+        toast({
+          title: "Success",
+          description: "Department updated successfully",
+        });
       } else {
         const { error } = await supabase.from("departments").insert([formData]);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Department created successfully" });
+        toast({
+          title: "Success",
+          description: "Department created successfully",
+        });
       }
 
       setDialogOpen(false);
@@ -85,21 +108,36 @@ export default function Departments() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this department?")) return;
+  const handleDeleteClick = (dept: Department) => {
+    setDeptToDelete(dept);
+    setDeleteModalOpen(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!deptToDelete) return;
+
+    setDeleteLoading(true);
     try {
-      const { error } = await supabase.from("departments").delete().eq("id", id);
+      const { error } = await supabase
+        .from("departments")
+        .delete()
+        .eq("id", deptToDelete.id);
 
       if (error) throw error;
-      toast({ title: "Success", description: "Department deleted successfully" });
+      toast({
+        title: "Success",
+        description: "Department deleted successfully",
+      });
       fetchDepartments();
+      setDeptToDelete(null);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -118,9 +156,14 @@ export default function Departments() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Departments</h1>
-          <p className="text-muted-foreground mt-1">Manage your university departments</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your university departments
+          </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => !open && resetDialog()}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => !open && resetDialog()}
+        >
           <DialogTrigger asChild>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
@@ -129,7 +172,9 @@ export default function Departments() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingDept ? "Edit" : "Add"} Department</DialogTitle>
+              <DialogTitle>
+                {editingDept ? "Edit" : "Add"} Department
+              </DialogTitle>
               <DialogDescription>
                 {editingDept ? "Update" : "Create"} department information
               </DialogDescription>
@@ -140,7 +185,9 @@ export default function Departments() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -149,7 +196,9 @@ export default function Departments() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   rows={3}
                 />
               </div>
@@ -164,7 +213,9 @@ export default function Departments() {
       {departments.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No departments yet. Create your first department to get started.</p>
+            <p className="text-muted-foreground">
+              No departments yet. Create your first department to get started.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -179,10 +230,18 @@ export default function Departments() {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(dept)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(dept)}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(dept.id)}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteClick(dept)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -191,6 +250,21 @@ export default function Departments() {
           ))}
         </div>
       )}
+
+      <ConfirmationModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        title="Delete Department"
+        description={
+          deptToDelete
+            ? `Are you sure you want to delete "${deptToDelete.name}"? This action cannot be undone and will remove the department from all associated assets.`
+            : ""
+        }
+        onConfirm={handleDeleteConfirm}
+        confirmText="Delete Department"
+        loading={deleteLoading}
+        type="delete"
+      />
     </div>
   );
 }

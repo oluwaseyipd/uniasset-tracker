@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { useConfirmation } from "@/hooks/use-confirmation";
 
 interface Asset {
   id: string;
@@ -47,7 +48,7 @@ interface Department {
   name: string;
 }
 
-export default function Assets() {
+export default function AssetsWithHook() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +56,6 @@ export default function Assets() {
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDept, setFilterDept] = useState<string>("all");
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
     category: string;
@@ -74,6 +72,7 @@ export default function Assets() {
     status: "active",
   });
   const { toast } = useToast();
+  const confirmation = useConfirmation();
 
   useEffect(() => {
     fetchData();
@@ -155,34 +154,35 @@ export default function Assets() {
     setDialogOpen(true);
   };
 
-  const handleDeleteClick = (asset: Asset) => {
-    setAssetToDelete(asset);
-    setDeleteModalOpen(true);
-  };
+  const handleDelete = (asset: Asset) => {
+    confirmation.confirm(
+      {
+        title: "Delete Asset",
+        description: `Are you sure you want to delete "${asset.name}"? This action cannot be undone.`,
+        confirmText: "Delete Asset",
+        cancelText: "Cancel",
+        type: "delete",
+        confirmVariant: "destructive",
+      },
+      async () => {
+        const { error } = await supabase
+          .from("assets")
+          .delete()
+          .eq("id", asset.id);
 
-  const handleDeleteConfirm = async () => {
-    if (!assetToDelete) return;
+        if (error) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+          throw error; // Re-throw to prevent modal from closing
+        }
 
-    setDeleteLoading(true);
-    try {
-      const { error } = await supabase
-        .from("assets")
-        .delete()
-        .eq("id", assetToDelete.id);
-
-      if (error) throw error;
-      toast({ title: "Success", description: "Asset deleted successfully" });
-      fetchData();
-      setAssetToDelete(null);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setDeleteLoading(false);
-    }
+        toast({ title: "Success", description: "Asset deleted successfully" });
+        fetchData();
+      }
+    );
   };
 
   const resetForm = () => {
@@ -426,7 +426,7 @@ export default function Assets() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDeleteClick(asset)}
+                        onClick={() => handleDelete(asset)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -439,19 +439,18 @@ export default function Assets() {
         </Table>
       </div>
 
+      {/* Confirmation Modal */}
       <ConfirmationModal
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-        title="Delete Asset"
-        description={
-          assetToDelete
-            ? `Are you sure you want to delete "${assetToDelete.name}"? This action cannot be undone.`
-            : ""
-        }
-        onConfirm={handleDeleteConfirm}
-        confirmText="Delete Asset"
-        loading={deleteLoading}
-        type="delete"
+        open={confirmation.isOpen}
+        onOpenChange={confirmation.close}
+        title={confirmation.options?.title ?? ""}
+        description={confirmation.options?.description ?? ""}
+        onConfirm={confirmation.handleConfirm}
+        confirmText={confirmation.options?.confirmText}
+        cancelText={confirmation.options?.cancelText}
+        confirmVariant={confirmation.options?.confirmVariant}
+        loading={confirmation.loading}
+        type={confirmation.options?.type}
       />
     </div>
   );
