@@ -15,10 +15,10 @@ import {
   Sidebar,
   SidebarHeader,
   SidebarContent,
-  SidebarInset,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Header as AppHeader } from "@/components/Header";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -39,7 +39,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar>
         <SidebarContent>
           <div className="flex flex-col h-full pt-5">
@@ -49,7 +49,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
               </h1>
             </SidebarHeader>
             <div className="mt-5 flex-1 flex flex-col min-h-0">
-              <nav className="flex-1 px-2 pb-4 space-y-2 overflow-y-auto">
+              <nav className="flex-1 px-2 pb-4 space-y-4 overflow-y-auto">
                 {navigation.map((item) => (
                   <NavLink
                     key={item.name}
@@ -84,20 +84,17 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
           </div>
         </SidebarContent>
       </Sidebar>
-
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
-          <SidebarTrigger />
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Asset Management System</h2>
-          </div>
-        </header>
-
-        <div className="flex flex-1 flex-col gap-4 p-4 sm:p-6 lg:p-8">
-          {children}
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex-shrink-0">
+          <AppHeader>
+            <SidebarTrigger />
+          </AppHeader>
         </div>
-      </SidebarInset>
-    </>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
   );
 };
 
